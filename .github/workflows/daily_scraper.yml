@@ -1,0 +1,74 @@
+name: Daily Review Ingestion
+
+on:
+  # ── Automatic daily trigger at 02:30 UTC (08:00 AM IST) ──────────────────
+  schedule:
+    - cron: "30 2 * * *"
+
+  # ── Manual trigger from GitHub UI (Actions tab > Run workflow) ────────────
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: "Reason for manual run"
+        required: false
+        default: "Manual trigger"
+
+permissions:
+  contents: write   # Needed to commit the updated live_reviews.db back to repo
+
+jobs:
+  scrape-reviews:
+    name: Scrape All Platforms
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      # ── 1. Checkout the repo ───────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      # ── 2. Set up Python ───────────────────────────────────────────────────
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: requirements_scrapers.txt
+
+      # ── 3. Install scraper dependencies ───────────────────────────────────
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements_scrapers.txt
+
+      # ── 4. Run all scrapers ────────────────────────────────────────────────
+      - name: Run daily review ingestion
+        run: python scrape_all.py
+
+      # ── 5. Show database totals ────────────────────────────────────────────
+      - name: Print DB summary
+        run: |
+          python -c "
+          import sqlite3
+          conn = sqlite3.connect('live_reviews.db')
+          cur = conn.cursor()
+          cur.execute('SELECT source_platform, COUNT(*) FROM raw_reviews GROUP BY source_platform;')
+          rows = cur.fetchall()
+          conn.close()
+          total = sum(r[1] for r in rows)
+          print('=== FINAL DB COUNTS ===')
+          for platform, count in rows:
+              print(f'  {platform:<25} {count:>8}')
+          print(f'  {\"TOTAL\":<25} {total:>8}')
+          "
+
+      # ── 6. Commit updated database back to repo ────────────────────────────
+      - name: Commit updated live_reviews.db
+        run: |
+          git config --global user.name  "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add live_reviews.db
+          git diff --cached --quiet || git commit -m "chore: daily review ingestion $(date -u +%Y-%m-%d)"
+          git push

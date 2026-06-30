@@ -1,0 +1,119 @@
+{
+  "name": "Reddit Ingestion — r/spotify & r/truespotify",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "hours", "hoursInterval": 4 }]
+        }
+      },
+      "id": "cron-reddit",
+      "name": "Every 4 Hours",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [240, 300],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "url": "http://ingestion_api:8000/health",
+        "options": { "timeout": 10000 }
+      },
+      "id": "health-check",
+      "name": "Health Check",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [460, 300],
+      "typeVersion": 4
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.status }}",
+              "operation": "equals",
+              "value2": "ok"
+            }
+          ]
+        }
+      },
+      "id": "check-healthy",
+      "name": "Is API Healthy?",
+      "type": "n8n-nodes-base.if",
+      "position": [680, 300],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "url": "http://ingestion_api:8000/ingest/reddit",
+        "method": "POST",
+        "options": { "timeout": 30000 }
+      },
+      "id": "trigger-reddit",
+      "name": "Trigger Reddit Scraper",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [900, 200],
+      "typeVersion": 4
+    },
+    {
+      "parameters": {
+        "url": "http://ingestion_api:8000/status/runs?platform=reddit&limit=1",
+        "options": { "timeout": 10000 }
+      },
+      "id": "check-run-status",
+      "name": "Check Run Status (after 30s)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [1120, 200],
+      "typeVersion": 4
+    },
+    {
+      "parameters": {
+        "amount": 30,
+        "unit": "seconds"
+      },
+      "id": "wait-node",
+      "name": "Wait 30s",
+      "type": "n8n-nodes-base.wait",
+      "position": [1010, 200],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "message": "Reddit ingestion triggered — API was unhealthy. Check container logs.",
+        "webhookUri": "={{ $env.SLACK_ALERT_WEBHOOK }}"
+      },
+      "id": "slack-alert",
+      "name": "Slack Alert — API Down",
+      "type": "n8n-nodes-base.slack",
+      "position": [900, 420],
+      "typeVersion": 2
+    }
+  ],
+  "connections": {
+    "Every 4 Hours": {
+      "main": [[{ "node": "Health Check", "type": "main", "index": 0 }]]
+    },
+    "Health Check": {
+      "main": [[{ "node": "Is API Healthy?", "type": "main", "index": 0 }]]
+    },
+    "Is API Healthy?": {
+      "main": [
+        [{ "node": "Trigger Reddit Scraper", "type": "main", "index": 0 }],
+        [{ "node": "Slack Alert — API Down", "type": "main", "index": 0 }]
+      ]
+    },
+    "Trigger Reddit Scraper": {
+      "main": [[{ "node": "Wait 30s", "type": "main", "index": 0 }]]
+    },
+    "Wait 30s": {
+      "main": [[{ "node": "Check Run Status (after 30s)", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": ["ingestion", "reddit", "phase-1"],
+  "meta": {
+    "instanceId": "review-discovery-engine"
+  }
+}

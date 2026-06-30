@@ -1,0 +1,7 @@
+google-play-scraper==1.2.7
+scrapy==2.16.0
+youtube-comment-downloader==0.1.78
+requests==2.34.2
+beautifulsoup4==4.14.3
+lxml==6.1.0
+schedule==1.2.2

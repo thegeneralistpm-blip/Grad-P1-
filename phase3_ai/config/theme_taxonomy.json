@@ -1,0 +1,44 @@
+{
+  "version": "1.0",
+  "platform": "Spotify",
+  "categories": {
+    "Discovery & Recommendation": {
+      "description": "Feedback related to finding new music, playlists, and algorithm behavior.",
+      "leaf_themes": [
+        "Algorithm Repetitiveness",
+        "Echo Chamber / Feedback Loop",
+        "Lack of Novelty Control",
+        "AI DJ Commentary / Repetitiveness",
+        "Smart Shuffle Issues",
+        "Discover Weekly / Release Radar Quality"
+      ]
+    },
+    "User Intent & Behavior": {
+      "description": "How users interact with the app to control their music experience.",
+      "leaf_themes": [
+        "Genre-lock Escape",
+        "True Random Shuffle Request",
+        "Excluding Artists / Genres",
+        "Explicit Skip Ignored"
+      ]
+    },
+    "Feature Gaps & UX": {
+      "description": "Missing features or interface hurdles impacting discovery.",
+      "leaf_themes": [
+        "Novelty Slider Request",
+        "UI / Navigation Clutter",
+        "Lyrics / Metadata Issues",
+        "Offline / Download Management"
+      ]
+    },
+    "Competitive Signals": {
+      "description": "Comparisons with rival music streaming platforms.",
+      "leaf_themes": [
+        "Apple Music Comparison",
+        "YouTube Music Comparison",
+        "Tidal / Amazon Music Comparison",
+        "TikTok Music Discovery"
+      ]
+    }
+  }
+}

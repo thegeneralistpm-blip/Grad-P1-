@@ -1,0 +1,37 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+*.egg-info/
+dist/
+build/
+
+# Environments
+.env
+.venv
+venv/
+env/
+
+# Logs
+*.log
+
+# Large data files - keep live_reviews.db tracked (committed by GitHub Actions)
+# live_reviews.db  <-- intentionally NOT ignored
+
+# Intermediate outputs
+weekly_digest.json
+jira_drafts.json
+slack_payload.json
+weekly_email_preview.html
+live_reviews.json
+
+# IDE / OS
+.vscode/
+.idea/
+*.DS_Store
+Thumbs.db
+
+# Docker
+phase1_ingestion/docker-compose.override.yml

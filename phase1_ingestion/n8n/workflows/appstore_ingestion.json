@@ -1,0 +1,158 @@
+{
+  "name": "App Store & Play Store — Daily Ingestion (2AM UTC)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "cronExpression", "expression": "0 2 * * *" }]
+        }
+      },
+      "id": "cron-daily",
+      "name": "Daily at 2AM UTC",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [240, 300],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "url": "http://ingestion_api:8000/health",
+        "options": { "timeout": 10000 }
+      },
+      "id": "health-check",
+      "name": "Health Check",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [460, 300],
+      "typeVersion": 4
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.status }}",
+              "operation": "equals",
+              "value2": "ok"
+            }
+          ]
+        }
+      },
+      "id": "check-healthy",
+      "name": "Is API Healthy?",
+      "type": "n8n-nodes-base.if",
+      "position": [680, 300],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "url": "http://ingestion_api:8000/ingest/app_store",
+        "method": "POST",
+        "options": { "timeout": 30000 }
+      },
+      "id": "trigger-appstore",
+      "name": "Trigger App Store Scraper",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [900, 160],
+      "typeVersion": 4
+    },
+    {
+      "parameters": {
+        "amount": 60,
+        "unit": "seconds"
+      },
+      "id": "wait-between",
+      "name": "Wait 60s",
+      "type": "n8n-nodes-base.wait",
+      "position": [1000, 300],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "url": "http://ingestion_api:8000/ingest/play_store",
+        "method": "POST",
+        "options": { "timeout": 30000 }
+      },
+      "id": "trigger-playstore",
+      "name": "Trigger Play Store Scraper",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [1120, 160],
+      "typeVersion": 4
+    },
+    {
+      "parameters": {
+        "url": "http://ingestion_api:8000/ingest/spotify_community",
+        "method": "POST",
+        "options": { "timeout": 30000 }
+      },
+      "id": "trigger-forum",
+      "name": "Trigger Spotify Forum Scraper",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [1340, 160],
+      "typeVersion": 4
+    },
+    {
+      "parameters": {
+        "url": "http://ingestion_api:8000/status/reviews",
+        "options": { "timeout": 10000 }
+      },
+      "id": "get-counts",
+      "name": "Get Review Counts",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [1560, 160],
+      "typeVersion": 4
+    },
+    {
+      "parameters": {
+        "message": "=✅ *Daily Ingestion Complete*\nTimestamp: {{ $now }}\nReview counts: {{ JSON.stringify($json) }}",
+        "webhookUri": "={{ $env.SLACK_ALERT_WEBHOOK }}"
+      },
+      "id": "slack-success",
+      "name": "Slack — Daily Summary",
+      "type": "n8n-nodes-base.slack",
+      "position": [1780, 160],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "message": "=❌ *Daily Ingestion BLOCKED — API Unhealthy*\nTimestamp: {{ $now }}\nCheck Docker container logs.",
+        "webhookUri": "={{ $env.SLACK_ALERT_WEBHOOK }}"
+      },
+      "id": "slack-alert",
+      "name": "Slack Alert — API Down",
+      "type": "n8n-nodes-base.slack",
+      "position": [900, 440],
+      "typeVersion": 2
+    }
+  ],
+  "connections": {
+    "Daily at 2AM UTC": {
+      "main": [[{ "node": "Health Check", "type": "main", "index": 0 }]]
+    },
+    "Health Check": {
+      "main": [[{ "node": "Is API Healthy?", "type": "main", "index": 0 }]]
+    },
+    "Is API Healthy?": {
+      "main": [
+        [{ "node": "Trigger App Store Scraper", "type": "main", "index": 0 }],
+        [{ "node": "Slack Alert — API Down", "type": "main", "index": 0 }]
+      ]
+    },
+    "Trigger App Store Scraper": {
+      "main": [[{ "node": "Wait 60s", "type": "main", "index": 0 }]]
+    },
+    "Wait 60s": {
+      "main": [[{ "node": "Trigger Play Store Scraper", "type": "main", "index": 0 }]]
+    },
+    "Trigger Play Store Scraper": {
+      "main": [[{ "node": "Trigger Spotify Forum Scraper", "type": "main", "index": 0 }]]
+    },
+    "Trigger Spotify Forum Scraper": {
+      "main": [[{ "node": "Get Review Counts", "type": "main", "index": 0 }]]
+    },
+    "Get Review Counts": {
+      "main": [[{ "node": "Slack — Daily Summary", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": ["ingestion", "app-store", "play-store", "spotify-forum", "phase-1"],
+  "meta": { "instanceId": "review-discovery-engine" }
+}

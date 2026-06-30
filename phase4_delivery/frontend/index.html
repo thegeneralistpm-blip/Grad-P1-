@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Review Discovery Engine | PM Insights Dashboard</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Link CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-area">
+                    <i class="fa-brands fa-spotify logo-icon"></i>
+                    <div>
+                        <h2>Spotify Review</h2>
+                        <span class="sub-title">Discovery Engine</span>
+                    </div>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-tab="chat">
+                    <i class="fa-solid fa-comments"></i> <span>RAG Chat Search</span>
+                </button>
+                <button class="nav-item" data-tab="digest">
+                    <i class="fa-solid fa-chart-line"></i> <span>Weekly Digest</span>
+                </button>
+                <button class="nav-item" data-tab="jira">
+                    <i class="fa-solid fa-square-poll-horizontal"></i> <span>Jira Backlog</span>
+                    <span class="badge" id="jira-badge">0</span>
+                </button>
+                <button class="nav-item" data-tab="previews">
+                    <i class="fa-solid fa-share-nodes"></i> <span>Channel Previews</span>
+                </button>
+            </nav>
+
+            <!-- Saved Queries Card -->
+            <div class="sidebar-section">
+                <h3><i class="fa-solid fa-bookmark"></i> Saved Queries</h3>
+                <div class="saved-queries-list" id="saved-queries">
+                    <!-- Dynamic List -->
+                    <p class="empty-state">No saved queries yet.</p>
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="avatar"><i class="fa-solid fa-user-tie"></i></div>
+                    <div>
+                        <span class="user-name">Growth PM Team</span>
+                        <span class="user-role">Administrator</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Dashboard -->
+        <main class="main-content">
+            <!-- Top Navbar Bar -->
+            <header class="top-navbar">
+                <div class="navbar-left">
+                    <h1 id="tab-title">RAG Chat Search</h1>
+                </div>
+                <div class="navbar-right">
+                    <div class="system-status">
+                        <span class="status-indicator online"></span>
+                        <span class="status-text">AI Layer Connected</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dynamic Tab Content Panels -->
+            <div class="tab-panel active" id="panel-chat">
+                <div class="chat-wrapper">
+                    <!-- Chat History Pane -->
+                    <div class="chat-history" id="chat-history">
+                        <div class="welcome-chat-message">
+                            <div class="icon-bubble"><i class="fa-solid fa-robot"></i></div>
+                            <h2>Welcome, Spotify Growth Team PM!</h2>
+                            <p>Query natural language questions regarding latest qualitative reviews from App Store, Play Store, Reddit, YouTube, and Spotify Community Forum.</p>
+                            
+                            <div class="suggested-queries">
+                                <h4>💡 Suggested Questions to Get Started:</h4>
+                                <div class="suggested-buttons">
+                                    <button class="suggested-btn">Why are users frustrated with AI DJ and repeating songs?</button>
+                                    <button class="suggested-btn">What are the complaints regarding Smart Shuffle algorithm?</button>
+                                    <button class="suggested-btn">Are users requesting a Novelty Slider feature?</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chat Input Controls -->
+                    <div class="chat-input-area">
+                        <form id="chat-form">
+                            <div class="input-group">
+                                <input type="text" id="chat-input" placeholder="Type a product question..." required>
+                                <button type="button" class="action-btn" id="btn-save-query" title="Save Query">
+                                    <i class="fa-regular fa-bookmark"></i>
+                                </button>
+                                <button type="submit" class="send-btn">
+                                    <span>Send</span> <i class="fa-solid fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weekly Digest Tab Panel -->
+            <div class="tab-panel" id="panel-digest">
+                <div class="digest-grid">
+                    <!-- Key Stats Metrics Row -->
+                    <div class="stat-card urgent-alert">
+                        <div class="stat-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-label">Top Urgency Issue</span>
+                            <h3 id="digest-urgency-theme">Loading...</h3>
+                            <span class="stat-meta" id="digest-urgency-score">Urgency: --/5.0</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card rising-theme">
+                        <div class="stat-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-label">Top Rising Theme</span>
+                            <h3 id="digest-rising-theme">Loading...</h3>
+                            <span class="stat-meta" id="digest-rising-percent">--% WoW Growth</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card reviews-count">
+                        <div class="stat-icon"><i class="fa-solid fa-envelope-open-text"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-label">Reviews Analyzed</span>
+                            <h3 id="digest-total-count">0</h3>
+                            <span class="stat-meta" id="digest-date-range">Last 7 days</span>
+                        </div>
+                    </div>
+
+                    <!-- Large Details Section -->
+                    <div class="digest-details-panel glass-card">
+                        <div class="panel-header">
+                            <h3><i class="fa-solid fa-list-check"></i> Primary Unmet Needs & Feedback Themes</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="unmet-needs-box">
+                                <h4>💡 Top Identified Unmet User Need:</h4>
+                                <blockquote id="digest-unmet-need">"Loading..."</blockquote>
+                            </div>
+
+                            <div class="themes-list-wrapper">
+                                <h4>📊 Theme Mentions Frequency:</h4>
+                                <div id="digest-themes-list">
+                                    <!-- Dynamic bar graphs -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Side Competitive Panel -->
+                    <div class="digest-side-panel glass-card">
+                        <div class="panel-header">
+                            <h3><i class="fa-solid fa-shield-halved"></i> Competitive Signals</h3>
+                        </div>
+                        <div class="panel-body">
+                            <p class="section-desc">Mentions of rival music streaming networks in user feedback:</p>
+                            <div class="competitive-metrics" id="digest-competitors">
+                                <!-- Dynamic List -->
+                            </div>
+                            
+                            <div class="platform-share-card">
+                                <h4>📥 Ingestion Platform Volume:</h4>
+                                <div class="share-chart" id="digest-platforms">
+                                    <!-- Dynamic Bars -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Jira Backlog Tab Panel -->
+            <div class="tab-panel" id="panel-jira">
+                <div class="jira-header-desc">
+                    <h2><i class="fa-solid fa-ticket"></i> Auto-Drafted Growth Backlog Issues</h2>
+                    <p>When user complaints match high urgency (≥ 4.0/5.0) and high mention frequency thresholds, the AI engine auto-drafts a Jira ticket for immediate product triage.</p>
+                </div>
+                
+                <div class="jira-list" id="jira-list">
+                    <!-- Dynamic Jira Cards -->
+                </div>
+            </div>
+
+            <!-- Previews Tab Panel -->
+            <div class="tab-panel" id="panel-previews">
+                <div class="previews-layout">
+                    <!-- Slack Message Box -->
+                    <div class="preview-box glass-card">
+                        <div class="preview-header slack-branding">
+                            <i class="fa-brands fa-slack"></i> <span>Slack Weekly Digest (#growth-pm-insights)</span>
+                        </div>
+                        <div class="preview-content-area">
+                            <div class="slack-message-bubble">
+                                <div class="slack-bot-avatar"><i class="fa-brands fa-spotify"></i></div>
+                                <div class="slack-message-body">
+                                    <span class="bot-name">Review Discovery Engine Bot</span> <span class="time">8:00 AM</span>
+                                    <div class="slack-blocks" id="slack-blocks-view">
+                                        <!-- Render block text -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Email Template Preview Box -->
+                    <div class="preview-box glass-card">
+                        <div class="preview-header email-branding">
+                            <i class="fa-solid fa-envelope"></i> <span>HTML Email Newsletter Report</span>
+                        </div>
+                        <div class="preview-content-area no-padding">
+                            <iframe id="email-preview-iframe" title="Email Template Live Preview" src="about:blank"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <!-- Load App JS -->
+    <script src="app.js"></script>
+</body>
+</html>
